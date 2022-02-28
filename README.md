@@ -19,6 +19,8 @@ This project is made possible with funding by the Government of Ontario and thro
 
 WebXR_P5js_eCampus21 by [Haru Ji and Graham Wakefield](https://artificialnature.net) and is licensed under the GNU General Public License v3.0, except where otherwise noted.
 
+[Three.js is shared under the MIT license](https://github.com/mrdoob/three.js/blob/dev/LICENSE)
+
 # Manual
 
 This guide is a detailed guide on how to prepare a WebXR gallery space of P5.js sketches. 
