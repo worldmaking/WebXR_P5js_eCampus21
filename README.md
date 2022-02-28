@@ -39,7 +39,7 @@ It may take a few minutes for edits to appear at this address.
 
 The `index.html` template is an HTML5 page with a standard structure for embedding Javascript code. 
 
-```
+```html
 <!DOCTYPE html>
 <html lang="en">
 <html>
@@ -69,7 +69,7 @@ For any assets (such as image files) to be available to the scene, they should b
 
 For example, in the demo at `index.html`, the 4th project uses an image instead of a P5.js script. The image is a JPG file hosted here in the same repository in the `assets` folder, and is loaded in the script by using the path `./assets/atelier.jpg`:
 
-```
+```javascript
 let group3 = showArtwork({
 	width: 3,
 	height: 2,
