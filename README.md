@@ -6,6 +6,8 @@ This is one of three projects developed in parallel by OCAD University and York 
 
 The project is officially hosted on [Github](https://github.com/worldmaking/WebXR_P5js_eCampus21)
 
+A demo project can be seen at [https://alicelab.world/WebXR_P5js_eCampus21/](https://alicelab.world/WebXR_P5js_eCampus21/)
+
 ### Sister Projects
 
 - [WebXR Template for A-Frame](https://github.com/ocadwebxr/ocadu-open-webxr)
