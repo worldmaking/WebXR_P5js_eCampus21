@@ -1,0 +1,1 @@
+Use this folder to upload static assets (e.g. images) for the project.
