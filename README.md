@@ -22,3 +22,15 @@ WebXR_P5js_eCampus21 by [Haru Ji and Graham Wakefield](https://artificialnature.
 # Manual
 
 This guide is a detailed guide on how to prepare a WebXR gallery space of P5.js sketches. 
+
+## Getting started
+
+The easiest way to get started is to fork this Github repository, and begin editing the `index.html` file in the `gh-pages` branch of the repository. The `gh-pages` branch will be publicly hosted at a secure web address that is dervied from your Github username and projectname as follows:
+
+`https://<username>.github.io/<projectname>`
+
+It may take a few minutes for edits to appear at this address. 
+
+## The template
+
+The `index.html` template is an HTML5 page with a standard structure for embedding Javascript code. 
