@@ -35,6 +35,50 @@ The easiest way to get started is to fork this Github repository, and begin edit
 
 It may take a few minutes for edits to appear at this address. 
 
-## The template
+## The Template
 
 The `index.html` template is an HTML5 page with a standard structure for embedding Javascript code. 
+
+```
+<!DOCTYPE html>
+<html lang="en">
+<html>
+<head>
+<title></title>
+<meta charset="UTF-8" />
+<style>
+/* ensure the content fills the available page without borders */
+* { margin: 0px; }
+</style>
+</head>
+<body>
+<script type="module">
+import { showArtwork, scene, renderer } from './webxrp5.js';
+
+/// YOUR CODE HERE
+
+</script>
+</body>
+</html>
+</html>
+```
+
+## Staging Assets
+
+For any assets (such as image files) to be available to the scene, they should be hosted in the same location as the HTML file, or referenced from a separate URL on a server that permits Cross-Origin Resource Sharing (CORS).
+
+For example, in the demo at `index.html`, the 4th project uses an image instead of a P5.js script. The image is a JPG file hosted here in the same repository in the `assets` folder, and is loaded in the script by using the path `./assets/atelier.jpg`:
+
+```
+let group3 = showArtwork({
+	width: 3,
+	height: 2,
+	image: './assets/atelier.jpg',
+	label: label3,
+});
+group3.position.set(-4, 0, 0);
+group3.rotation.y = Math.PI / 2;
+scene.add(group3);
+```
+
+To add new assets to your project, they will also need to be uploaded via the Github 'add file' interface, or committed via git desktop or command line tools.
