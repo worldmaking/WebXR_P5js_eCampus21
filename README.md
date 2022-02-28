@@ -4,6 +4,8 @@ WebXR_P5js is a template for embedding [P5.js](https://p5js.org/) sketches insid
 
 ![demo gallery](./assets/webxr02.png)
 
+(Image displays a screenshot view of the example WebXR exhibition space)
+
 ### Sister Projects
 
 This is one of three projects developed in parallel by OCAD University and York University researchers with the goal of providing students of varying educational backgrounds and skillsets with the necessary toolkits to quickly produce WebXR envrironments for their creative media projects:
