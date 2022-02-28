@@ -6,7 +6,8 @@ This is one of three projects developed in parallel by OCAD University and York 
 
 The project is officially hosted on [Github](https://github.com/worldmaking/WebXR_P5js_eCampus21)
 
-A demo project can be seen at [https://alicelab.world/WebXR_P5js_eCampus21/](https://alicelab.world/WebXR_P5js_eCampus21/)
+A demo project can be seen at [https://alicelab.world/WebXR_P5js_eCampus21/](https://alicelab.world/WebXR_P5js_eCampus21/)  
+![demo gallery](./assets/webxr02.png)
 
 ### Sister Projects
 
@@ -35,9 +36,10 @@ The easiest way to get started is to fork this Github repository, and begin edit
 
 It may take a few minutes for edits to appear at this address. 
 
-## The Template
+## The template
 
 The `index.html` template is an HTML5 page with a standard structure for embedding Javascript code. 
+<<<<<<< HEAD
 
 ```html
 <!DOCTYPE html>
@@ -82,3 +84,5 @@ scene.add(group3);
 ```
 
 To add new assets to your project, they will also need to be uploaded via the Github 'add file' interface, or committed via git desktop or command line tools.
+=======
+>>>>>>> c5564379c44487487fb588a0706df902d766edb4
