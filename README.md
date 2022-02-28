@@ -103,7 +103,7 @@ and a few optional ones:
 
 To embed a P5.js script, the source code of the script needs to be added to the options object under the `code` field. 
 
-However, there are some edits that you must make to the P5.js code.
+However, there are some edits that you must make to the P5.js code, compared to how a P5.js script would typically look:
 
 - The p5.js script here must have a `draw()` function, but **no `setup()`** function. 
 - Any setup of resources and variables should be in global code in the script. 
@@ -116,13 +116,18 @@ Currently, mouse, keyboard, etc. events are not supported, and external librarie
 Example:
 
 ```javascript
-showArtwork({
-	code: `
-	draw() {
-		background(0, 15);
-	}
-	`
-})
+// using the backtick (`) quote to provide a multi-line string of your P5.js code:
+let code1 = `
+draw() {
+	background(0, 15);
+}
+`
+
+let options = {
+	code: code1,
+}
+
+let artwork = showArtwork(options)
 ```
 
 #### Static images instead of P5.js code
