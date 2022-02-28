@@ -111,7 +111,7 @@ However, there are some edits that you must make to the P5.js code.
 
 #### Some limitations
 
-Currently, mouse, keyboard, etc. events are not supported, and external libraries (e.g. audio) will probably not work. 
+Currently, mouse, keyboard, etc. events are not supported, and external libraries (e.g. audio) will probably not work (Jan 2022). 
 
 Example:
 
