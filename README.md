@@ -39,7 +39,6 @@ It may take a few minutes for edits to appear at this address.
 ## The template
 
 The `index.html` template is an HTML5 page with a standard structure for embedding Javascript code. 
-<<<<<<< HEAD
 
 ```html
 <!DOCTYPE html>
@@ -84,5 +83,4 @@ scene.add(group3);
 ```
 
 To add new assets to your project, they will also need to be uploaded via the Github 'add file' interface, or committed via git desktop or command line tools.
-=======
->>>>>>> c5564379c44487487fb588a0706df902d766edb4
+
