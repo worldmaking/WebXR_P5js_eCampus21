@@ -4,7 +4,7 @@ WebXR_P5js is a template for embedding [P5.js](https://p5js.org/) sketches insid
 
 ![demo gallery](./assets/webxr04.jpg)
 
-Image displays a screenshot view of the example WebXR exhibition space. If a VR headset is available on the computer and supported by the browser, it will show the "Enter VR" option to view the space in VR.
+Image displays a screenshot view of the demo WebXR exhibition space. If a VR headset is available on the computer and supported by the browser, it will show the "Enter VR" option to view the space in VR.
 
 ### Sister Projects
 
