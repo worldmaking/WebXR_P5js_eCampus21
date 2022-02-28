@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+  <html>
+    <head>
+      <title></title>
+
+      <meta charset="UTF-8" />
+      <style>
+        * {
+          margin: 0px;
+        }
+      </style>
+    </head>
+
+    <body>
+      <script type="module">
+        //first, import the Three.js modules we need:
+        import * as THREE from 'https://cdn.skypack.dev/three@0.126.0/build/three.module.js';
+        import { VRButton } from 'https://cdn.skypack.dev/three@0.126.0/examples/jsm/webxr/VRButton.js';
+        import { OrbitControls } from 'https://cdn.skypack.dev/three@0.126.0/examples/jsm/controls/OrbitControls.js';
+        import Stats from 'https://cdn.skypack.dev/three@0.126.0/examples/jsm/libs/stats.module';
+
+        import p5 from 'https://cdn.skypack.dev/p5';
+
+        /*
+          This is the function to turn an image file or a p5.js script into an object in Three.js
+
+          It returns a THREE.Group object, which you can place in the world as desired. 
+          The Group should normally be at Y=0 to have it align properly,
+          but you can position it in X and Z components (group.position.set(x, 0, z))
+          and rotate it (group.rotation.y = <radians>) to place in the world,
+          finally calling scene.add(group)
+
+          The argument to this function is a JavaScript object with one required field
+          and a few optional ones:
+
+          {
+            // REQUIRED:
+            code: <string of your p5.js code>, OR
+            image: <URL to a public image>,
+
+            // RECOMMENDED:
+            width: <optional, in meters, defaults to 1m>,
+            height: <optional, in meters, defaults to 3m>,
+            label: <optional string: label for the artwork>,
+
+            // OPTIONAL:
+            depth: <optional, in meters, defaults to 0.01m>,
+            resolution: <optional, pixels per meter, defaults to 250>
+            update: <Javascript function, which can be used to animate the object>
+          }
+
+          Watch out to not make the resolution too high, as it will slow graphics performance
+
+          The p5.js script should have a draw() function, 
+          but **no setup()** function
+          Also, it must not have a createCanvas() function
+
+          Currently, mouse, keyboard, etc. events are not supported.
+
+          Code by Haru Ji & Graham Wakefield, 2021
+        */
+        function showArtwork(options) {
+          let code = options.code;
+          let image = options.image;
+          let label = options.label;
+          // random seed:
+          let seed = options.seed;
+          let width = options.width || 5;
+          let height = options.height || 3;
+          let depth = options.depth || 0.01;
+
+          // pixels per meter
+          // don't set it too high or it can make the rendering too slow
+          let resolution = options.resolution || 250;
+          let width_pixels = width * resolution;
+          let height_pixels = height * resolution;
+
+          let update = options.update;
+
+          let renderer = options.renderer || 'p5.P2D';
+
+          let artwork;
+
+          if (code) {
+            let p5instance = new p5(function (s) {
+              let functionbody = `
+                let sketch = p5.createGraphics(${width_pixels}, ${height_pixels}, ${renderer});
+                with(sketch) {
+                  texture = new THREE.CanvasTexture(sketch.canvas);
+                  // setting the random seed here to make the sketches more deterministic between viewers / visits
+                  randomSeed(${seed});
+                  let frameCount = 0;
+                  ${code}
+                  draw();
+                  return {
+                    sketch,
+                    texture,
+                    draw() {
+                      draw();
+                      frameCount++;
+                      texture.needsUpdate = true;
+                    }
+                  }
+                }
+                `;
+              let create = new Function('p5', 'THREE', functionbody);
+              s.sketch = create(s, THREE);
+            });
+            // { sketch, texture, draw }
+            artwork = p5instance.sketch;
+          } else if (options.image) {
+            const textureLoader = new THREE.TextureLoader();
+            textureLoader.crossOrigin = 'Anonymous';
+            const myTexture = (artwork = {
+              texture: textureLoader.load(options.image),
+            });
+          }
+
+          // create a Group to hold this work:
+          let group = new THREE.Group();
+
+          if (!artwork) return group;
+
+          // sketch.texture can be used in a THREE material map
+          // sketch.draw() should be called on every frame for animations
+          let canvasGeometry = new THREE.BoxGeometry(width, height, depth); //new THREE.PlaneGeometry(width, height);
+          let canvasMaterial = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            side: THREE.DoubleSide,
+            map: artwork.texture,
+          });
+          // let nullMaterial = new THREE.MeshBasicMaterial({
+          //   color: 0x666666,
+          // });
+          // let materials = [
+          //   nullMaterial,
+          //   nullMaterial,
+          //   nullMaterial,
+          //   nullMaterial,
+          //   canvasMaterial,
+          //   nullMaterial,
+          // ];
+
+          const object = new THREE.Mesh(canvasGeometry, canvasMaterial);
+          // center plane on walls
+          object.position.set(0, 2, 0);
+
+          object.userData.isCanvas = true;
+          object.userData.update = function () {
+            if (update) update(object);
+            if (artwork.draw) artwork.draw();
+          };
+          object.userData.sketch = artwork;
+          group.add(object);
+
+          if (label) {
+            let canvas = document.createElement('canvas');
+            canvas.width = 2000;
+            canvas.height = 1000;
+            let ctx = canvas.getContext('2d');
+            ctx.fillStyle = 'white';
+
+            label.split('\n').forEach(function (line, i) {
+              if (i <= 2) {
+                let fontsize = 80;
+                ctx.font = 'bold ' + fontsize + 'px Verdana'; //Courier, Arial
+                ctx.fillText(line, 10, fontsize * 1.1 * i);
+              } else {
+                let fontsize = 70;
+                ctx.font = '' + fontsize + 'px Verdana'; //Courier, Arial
+                ctx.fillText(line, 10, fontsize * 1.1 * i);
+              }
+            });
+
+            const panel = new THREE.Mesh(
+              new THREE.PlaneGeometry(2, 1), // text panel size
+              new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                side: THREE.DoubleSide,
+                map: new THREE.CanvasTexture(canvas),
+                transparent: true,
+                opacity: 0,
+              })
+            );
+            panel.userData.isPanel = true;
+            panel.position.set(0.5, 0.6, 2.0);
+            panel.rotation.x = -Math.PI * 0.15;
+
+            group.add(panel);
+          }
+
+          return group;
+        }
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        // enable XR option in the renderer
+        renderer.xr.enabled = true;
+        document.body.appendChild(renderer.domElement);
+        document.body.appendChild(VRButton.createButton(renderer));
+
+        // arguments: vertical field of view (degrees), aspect ratio, near clip, far clip:
+        const camera = new THREE.PerspectiveCamera(
+          75,
+          window.innerWidth / window.innerHeight,
+          0.05,
+          100
+        );
+        // Z axis point out of the screen toward you; units are meters
+        camera.position.y = 1.5;
+        camera.position.z = 1.5;
+
+        const raycaster = new THREE.Raycaster();
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.target.y = 1.5;
+
+        // ensure the renderer fills the page, and the camera aspect ratio matches:
+        function resize() {
+          renderer.setSize(window.innerWidth, window.innerHeight);
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+        }
+        // do this now and whenever the window is resized()
+        resize();
+        window.addEventListener('resize', resize, false);
+
+        // build a scene graph:
+        const scene = new THREE.Scene();
+
+        // a room
+        const cube = new THREE.Mesh(
+          new THREE.BoxGeometry(8.05, 4, 8.05), // gallery size (meters)
+          new THREE.MeshStandardMaterial({
+            side: THREE.DoubleSide,
+            color: 0x666666,
+          })
+        );
+        cube.position.y = 2;
+        scene.add(cube);
+
+        const pointlight1 = new THREE.SpotLight(0xffffff, 1, 10, Math.PI);
+        pointlight1.position.set(0, 4, 0);
+        pointlight1.castShadow = true;
+        pointlight1.shadow.camera.near = 1;
+        pointlight1.shadow.camera.far = 8;
+        //pointlight1.shadow.bias = -0.000222;
+        pointlight1.shadow.mapSize.width = 1920 / 2;
+        pointlight1.shadow.mapSize.height = 1200 / 2;
+        pointlight1.target.position.set(0, 0, 0);
+        pointlight1.target.updateMatrixWorld();
+        pointlight1.penumbra = 0.5;
+        pointlight1.decay = 1;
+        pointlight1.shadow.focus = 1;
+        scene.add(pointlight1);
+
+        // currently running sketch:
+        let currentSketch;
+
+        // add a stats view to monitor performance:
+        const stats = new Stats();
+        document.body.appendChild(stats.dom);
+
+        let t = performance.now();
+        // the function called at frame-rate to animate & render the scene:
+        function animate() {
+          // monitor our FPS:
+          stats.begin();
+
+          scene.traverse(function (o) {
+            if (o.userData.isPanel) {
+              o.material.opacity = Math.max(0.0, o.material.opacity * 0.9);
+            }
+          });
+
+          // calculate objects intersecting the picking ray
+          raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+          const intersects = raycaster.intersectObject(scene, true);
+          if (intersects.length) {
+            const target = intersects[0].object;
+
+            if (target.userData.isCanvas) {
+              currentSketch = target;
+            } else if (target.userData.isPanel) {
+              target.material.opacity = Math.min(
+                1,
+                target.material.opacity + 0.1
+              );
+            }
+          }
+
+          // run the p5.js sketches
+          if (currentSketch && currentSketch.userData.update) {
+            currentSketch.userData.update();
+          }
+
+          controls.update();
+
+          // draw the scene:
+          renderer.render(scene, camera);
+          // monitor our FPS:
+          stats.end();
+        }
+        // start!
+        renderer.setAnimationLoop(animate);
+
+        ////////////////////////////////////////////////////////////////////////////////////////
+        // INSERT ARTWORKS BELOW HERE
+        ////////////////////////////////////////////////////////////////////////////////////////
+
+        // First label
+        let label0 = `
+WebXR Sketch 101
+Haru Ji, 2021, Jungle, p5.js
+
+This is a prototyping WebXR 
+exhibition & critique space for 
+Digital Atelier 1: Discovery, 
+Experiment 2 Endless Forms Most Beautiful.
+            `;
+
+        let code0 = `
+let w = width, h = height;
+
+let num = 25; // number of circles
+let points = [];
+
+for (let i=0; i<num; i++){
+  points[i] = {
+    x: random(w), // circle x position
+    y: random(h), // circle y position
+    r: random(20, 40), // circle size
+    vx: 1, // velocity x directin
+    vy: random(-1, 1), // velocity y direction
+    c: 1555, // color initial tone 
+  }
+}
+
+function draw () {
+  background(180, 2); //background gray tone, transparency
+
+  for (let i=0; i<num; i++){   
+    let p = points[i];
+  
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.03; // gravity
+
+    for (let j=i+1; j<num; j++){
+      let n = points[j];
+      
+      stroke((p.y+100)%(n.c*2), ((p.y+n.y)-p.c)%155, (n.y-n.c)%255);
+      strokeWeight(p.r%2);
+      //line(p.x, p.y, n.x, n.y);
+      
+      let d = dist(p.x, p.y, n.x, n.y);
+      let cs = p.r + n.r;
+      if (d<=cs) {
+        p.vx *= -1;
+        p.vy *= -1;
+        n.vx *= -1;
+        n.vy *= -1;
+        p.r = max(min(abs(n.r + random(-10, 10)), 300), 5);
+        n.r = max(min(abs(p.r + random(-10, 10)), 300), 5);
+        p.c = random(255);
+        n.c = random(255);
+      }
+    }
+    
+    if (p.x<=p.r){
+      p.x = p.r;
+      p.vx = abs(p.vx);
+    } else if (p.x>=(w-p.r)){
+      p.x = w-p.r;
+      p.vx = -abs(p.vx);
+    }
+    if (p.y<p.r) {
+      p.y = p.r;
+      p.vy = abs(p.vy);
+    } else if (p.y>=(h-p.r)){
+      p.y = h-p.r;
+      p.vy = -abs(p.vy);
+    }
+    
+    strokeWeight(p.r%15);
+    //fill(p.y+5%5 + p.c, p.x+3%5-p.c, p.x+15%15-p.c, 100);
+    fill((p.c)%255, (255-p.c), (255-p.c+155));
+    stroke((p.y+p.c)%255, (p.y-p.c)%155, p.c%155);
+    ellipse(p.x, p.y, p.r*2);
+  }
+}
+      `;
+
+        let group0 = showArtwork({
+          width: 8,
+          height: 4,
+          code: code0,
+          label: label0,
+        });
+        group0.position.set(0, 0, -4);
+        scene.add(group0);
+
+        console.log(
+          group0.children[0].userData.sketch.sketch.elt.dispatchEvent(
+            new MouseEvent('click')
+          )
+        );
+
+        let label1 = `
+WebXR Sketch 102
+Haru Ji, 2021
+
+This is a prototyping WebXR 
+exhibition & critique space for 
+Digital Atelier 1: Discovery, 
+Experiment 2 Endless Forms Most Beautiful.
+            `;
+
+        let code1 = `
+let w = width, h = height;
+let num = 100;
+let points = [];
+for (let i=0; i<num; i++){
+  points[i] = {
+      x: random(w),
+      y: random(h),
+      r: random(50, 100),
+      vx: 5,
+      vy: random(-10, 10),
+      c: random(1),
+    }
+}
+
+function draw () {
+  background(55, 5);
+
+  for (let i=0; i<num; i++){
+    let p = points[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.03;
+
+    for (let j=i+1; j<num; j++){
+       let n = points[j];
+
+    //   stroke(p.y+5%55, p.x+3%55, p.x+55%255, 55);
+    //   strokeWeight(p.x%2);
+    //  // line(p.x, p.y, n.x, n.y);
+
+      let d = dist(p.x, p.y, n.x, n.y);
+      let cs = p.r/2 + n.r/2;
+      if (d<cs) {
+        p.vx *= -1;
+        p.vy *= -1;
+        n.vx *= -1;
+        n.vy *= -1;
+        p.r = abs(p.r + random(-20, 19));
+        p.c *= -1;
+      }
+    }
+
+    if (p.x < p.r/2) {
+      p.x = p.r/2;
+      p.vx = abs(p.vx);
+    } else if (p.x+p.r/2 > w){
+      p.x = w-p.r/2;
+      p.vx = -abs(p.vx);
+    }
+    if (p.y < p.r/2) {
+      p.y = p.r/2;
+      p.vy = abs(p.vy);
+    } else if (p.y+p.r/2 > h){
+      p.y = h-p.r/2;
+      p.vy = -abs(p.vy);
+    }
+
+    if (p.r>h){
+      p.r -= 10;
+    }
+
+    fill((p.c*55+255)%255, p.c*55+p.y%25+5, p.c*55+p.x%55+55);
+    //ellipse(p.x, p.y, p.r);
+    square(p.x, p.y, p.r, p.r/5);
+  }
+
+}
+    `;
+
+        let group1 = showArtwork({
+          width: 1,
+          height: 1,
+          depth: 1,
+          code: code1,
+          label: label1,
+          update: function (artwork) {
+            artwork.rotation.y += 0.01;
+            artwork.rotation.x += 0.003;
+          },
+        });
+        group1.position.set(3.5, 0, 0);
+        group1.rotation.y = -Math.PI / 2;
+        scene.add(group1);
+
+        let label2 = `
+WebXR Sketch 103: Game of Life
+Haru Ji, 2021
+
+This is a prototyping WebXR 
+exhibition & critique space for 
+Digital Atelier 1: Discovery, 
+Experiment 2 Endless Forms Most Beautiful.
+            `;
+
+        let code2 = `
+      let w = width, h = height;
+
+      let cn = 64;
+      let cx = w/cn;
+      let cy = h/cn;
+      let cells = [];
+      let newCells = [];
+
+      for (let i=0; i<cn; i++){
+        cells[i] = [];
+        newCells[i] = [];
+        for (let j=0; j<cn; j++){
+          let c = random(1);
+          fill(c * 255);
+          cells[i][j] = c;
+          rect(i*cx, j*cy, cx, cy);
+        }
+      }
+
+        function draw () {
+          background(0, 15);
+          for (let i=0; i<cn; i++){
+            for (let j=0; j<cn; j++){
+
+              if (i==0 || i==cn-1 || j==0 || j==cn-1){
+                newCells[i][j] = int(random(2));
+              } else {
+            
+            // neighbor numbers
+              let s = cells[i][j+1];
+              let n = cells[i][j-1];
+              let w = cells[i-1][j];
+              let e = cells[i+1][j];
+              let sw = cells[i-1][j+1];
+              let se = cells[i+1][j+1];
+              let nw = cells[i-1][j-1];
+              let ne = cells[i+1][j-1];
+              let sum = s+n+w+e+sw+se+nw+ne;
+
+              if (cells[i][j]){
+                if (sum<2 || sum>3){
+                  newCells[i][j] = 0;
+                } else {
+                  newCells[i][j] = 1;
+                }
+              }
+              if (cells[i][j]==0){
+                if (sum==3){
+                  newCells[i][j] = 1;
+                } else {
+                  newCells[i][j] = 0;
+                }
+              }
+
+            }
+          }
+        }
+          for (let i=0; i<cn; i++){
+            for (let j=0; j<cn; j++){
+              let c = newCells[i][j];
+              fill(c * 255 + 35, c * 155 + 15, c * 55 + 15, 55);
+              rect(i*cx, j*cy, cx, cy);
+              cells[i][j] = c;
+            }
+          }
+
+        }//draw function
+    `;
+
+        let group2 = showArtwork({
+          width: 3,
+          height: 3,
+          code: code2,
+          label: label2,
+        });
+        group2.position.set(0, 0, 4);
+        group2.rotation.y = Math.PI;
+        scene.add(group2);
+
+        let label3 = `
+WebXR Image 104
+Digital Atelier: Endless Forms Most Beautiful
+
+Credit, right to left, top: 1, Donato Liotino, 
+2. Natalie Le Huenen 3. Mahnoor Shahid, 
+bottom: 4. Tania Samokhvalova, 5. Natalie Le Huenen, 
+6. Anran Zhou (DF Undergraduate students 
+from OCAD University)
+
+This is how to show an image from a remote URL.
+
+This is a prototyping WebXR 
+exhibition & critique space for eCampus.
+Digital Atelier 1: Discovery, 
+Experiment 2 
+            `;
+
+        let group3 = showArtwork({
+          width: 3,
+          height: 2,
+          image: 'https://jiharu.github.io/assets/atelier_jpg.jpg',
+          label: label3,
+        });
+        group3.position.set(-4, 0, 0);
+        group3.rotation.y = Math.PI / 2;
+        scene.add(group3);
+      </script>
+    </body>
+  </html>
+</html>
