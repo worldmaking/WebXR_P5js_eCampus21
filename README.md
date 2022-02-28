@@ -56,7 +56,7 @@ The `template.html` template is an HTML5 page with a standard structure for embe
 </head>
 <body>
 <script type="module">
-import { showArtwork, scene, renderer } from './webxrp5.js';
+import { showArtwork, scene } from './webxrp5.js';
 
 /// YOUR CODE HERE
 
@@ -64,6 +64,91 @@ import { showArtwork, scene, renderer } from './webxrp5.js';
 </body>
 </html>
 </html>
+```
+
+The template is a standard HTML5 boilerplate, embedding a JavaScript inline module that imports the WebXR_P5.js library's `showArtwork` function, and the Three.js [`scene`](https://threejs.org/docs/#api/en/scenes/Scene) object.
+
+## showArtwork()
+
+To add artwork to the template you can call the `showArtwork()` function. 
+
+This is the function to turn an image file or a p5.js script into an object in Three.js.
+
+The `showArtwork()` call should pass in an "options" object that configures how the artwork is displayed. 
+
+It returns a Three.js [Group](https://threejs.org/docs/?q=group#api/en/objects/Group) object, which you can place in the world as desired. 
+
+The argument to this function is a JavaScript object with one required field
+and a few optional ones:
+
+```javascript
+{
+	// REQUIRED -- either of:
+	code: <string of your p5.js code>, OR
+	image: <URL to a public image>,
+
+	// RECOMMENDED:
+	width: <optional, in meters, defaults to 5m>,
+	height: <optional, in meters, defaults to 3m>,
+	label: <optional string: label for the artwork>,
+
+	// OPTIONAL:
+	depth: <optional, in meters, defaults to 0.01m>,
+	resolution: <optional, pixels per meter, defaults to 250>
+	update: <Javascript function, which can be used to animate the object>
+}
+```
+
+### Code
+
+To embed a P5.js script, the source code of the script needs to be added to the options object under the `code` field. 
+
+There are some edits that you must make to the P5.js code, and some limitations of what is supported:
+
+The p5.js script must have a `draw()` function, but **no `setup()`** function. Any setup of resources and variables should be in global code in the script. 
+  
+Do not call `createCanvas()`, as the `showArtwork()` method is creating the canvas for you. 
+
+Currently, mouse, keyboard, etc. events are not supported, and external libraries (e.g. audio) will probably not work. 
+
+Example:
+
+```javascript
+showArtwork({
+	code: `
+	draw() {
+		background(0, 15);
+	}
+	`
+})
+```
+
+#### Static images instead of P5.js code
+
+Instead of displaying a P5.js script, you can display a static image, using the `image` field option. See the notes below on Staging Assets for an example. 
+
+### Labels
+
+The options object can include a text string `label` to show the title and description of the artwork. This text will fade in when the visitor looks down toward the bottom of the artwork, and fade out again when the visitor looks back up. 
+
+
+
+
+### Placing the Artwork in the World
+
+The Three.js [Group](https://threejs.org/docs/?q=group#api/en/objects/Group) returned by `showArtwork()` should normally be at Y=0 to have it align properly, but you can position it in X and Z components (e.g. using `group.position.set(x, 0, z)`) and rotate it (e.g. using `group.rotation.y = Math.PI/2`) to position and orient the work in the world.
+
+For example:
+
+```javascript
+let group2 = showArtwork({
+	width: 3,
+	height: 3,
+	code: code2,
+	label: label2,
+});
+group2.position.set(0, 0, 4);
+group2.rotation.y = Math.PI;
 ```
 
 ## Staging Assets
@@ -74,9 +159,9 @@ For example, in the demo at `index.html`, the 4th project uses an image instead 
 
 ```javascript
 let group3 = showArtwork({
+	image: './assets/atelier.jpg',
 	width: 3,
 	height: 2,
-	image: './assets/atelier.jpg',
 	label: label3,
 });
 group3.position.set(-4, 0, 0);

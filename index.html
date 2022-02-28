@@ -11,7 +11,7 @@
 </head>
 <body>
 <script type="module">
-import { showArtwork, scene, renderer } from './webxrp5.js';
+import { showArtwork, scene } from './webxrp5.js';
 
 /* 
 	See documentation at https://github.com/worldmaking/WebXR_P5js_eCampus21/blob/main/README.md
@@ -113,7 +113,6 @@ let group0 = showArtwork({
 	label: label0,
 });
 group0.position.set(0, 0, -4);
-scene.add(group0);
 
 console.log(
 	group0.children[0].userData.sketch.sketch.elt.dispatchEvent(
@@ -214,7 +213,6 @@ let group1 = showArtwork({
 });
 group1.position.set(3.5, 0, 0);
 group1.rotation.y = -Math.PI / 2;
-scene.add(group1);
 
 let label2 = `
 WebXR Sketch 103: Game of Life
@@ -304,7 +302,6 @@ let group2 = showArtwork({
 });
 group2.position.set(0, 0, 4);
 group2.rotation.y = Math.PI;
-scene.add(group2);
 
 let label3 = `
 WebXR Image 104
@@ -332,7 +329,6 @@ let group3 = showArtwork({
 });
 group3.position.set(-4, 0, 0);
 group3.rotation.y = Math.PI / 2;
-scene.add(group3);
 </script>
 </body>
 </html>

@@ -31,12 +31,12 @@ import p5 from 'https://cdn.skypack.dev/p5';
   and a few optional ones:
 
   {
-    // REQUIRED:
+    // REQUIRED -- either of:
     code: <string of your p5.js code>, OR
     image: <URL to a public image>,
 
     // RECOMMENDED:
-    width: <optional, in meters, defaults to 1m>,
+    width: <optional, in meters, defaults to 5m>,
     height: <optional, in meters, defaults to 3m>,
     label: <optional string: label for the artwork>,
 
@@ -185,6 +185,8 @@ function showArtwork(options) {
 
     group.add(panel);
   }
+
+  scene.add(group);
 
   return group;
 }
