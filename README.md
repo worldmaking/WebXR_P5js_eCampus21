@@ -34,9 +34,11 @@ The easiest way to get started is to fork this Github repository, and begin edit
 
 It may take a few minutes for edits to appear at this address. 
 
+Once you have your fork of the project, you can clone the repository and make changes to `index.html` or `template.html` to add your scripts as described below, then use `git` tools (desktop software or command line) to `commit` and `push` your updated project to your live website. 
+
 ## The template
 
-The `index.html` template is an HTML5 page with a standard structure for embedding Javascript code. 
+The `template.html` template is an HTML5 page with a standard structure for embedding Javascript code. 
 
 ```html
 <!DOCTYPE html>
