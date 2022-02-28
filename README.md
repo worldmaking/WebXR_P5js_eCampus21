@@ -105,7 +105,7 @@ To embed a P5.js script, the source code of the script needs to be added to the 
 
 There are some edits that you must make to the P5.js code, and some limitations of what is supported:
 
-The p5.js script must have a `draw()` function, but **no `setup()`** function. Any setup of resources and variables should be in global code in the script. 
+The p5.js script here must have a `draw()` function, but **no `setup()`** function unlike typical p5.js code. Any setup of resources and variables should be in global code in the script. 
   
 Do not call `createCanvas()`, as the `showArtwork()` method is creating the canvas for you. 
 
