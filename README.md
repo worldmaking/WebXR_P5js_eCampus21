@@ -21,3 +21,4 @@ WebXR_P5js_eCampus21 by [Haru Ji and Graham Wakefield](https://artificialnature.
 
 # Manual
 
+This guide is a detailed guide on how to prepare a WebXR gallery space of P5.js sketches. 
