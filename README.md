@@ -3,8 +3,7 @@
 WebXR_P5js is a template for embedding [P5.js](https://p5js.org/) sketches inside a [Three.js](https://threejs.org/) WebXR-ready scene for VR and desktop display. The project is officially hosted on [Github](https://github.com/worldmaking/WebXR_P5js_eCampus21). A demo project using the template can be seen at [https://alicelab.world/WebXR_P5js_eCampus21/](https://alicelab.world/WebXR_P5js_eCampus21/)  
 
   ![demo gallery](./assets/webxr04.jpg)
-
-Image displays a screenshot view of the example WebXR exhibition space. If VR headset is set-up, it will be VR-ready.
+  Image displays a screenshot view of the example WebXR exhibition space. If VR headset is set-up, it will be VR-ready.
 
 ### Sister Projects
 
