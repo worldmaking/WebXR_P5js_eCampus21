@@ -84,18 +84,18 @@ and a few optional ones:
 ```javascript
 {
 	// REQUIRED -- either of:
-	code: <string of your p5.js code>, OR
-	image: <URL to a public image>,
+	// code: <string of your p5.js code>, OR
+	// image: <URL to a public image>,
 
 	// RECOMMENDED:
-	width: <optional, in meters, defaults to 5m>,
-	height: <optional, in meters, defaults to 3m>,
-	label: <optional string: label for the artwork>,
+	// width: <optional, in meters, defaults to 5m>,
+	// height: <optional, in meters, defaults to 3m>,
+	// label: <optional string: label for the artwork>,
 
 	// OPTIONAL:
-	depth: <optional, in meters, defaults to 0.01m>,
-	resolution: <optional, pixels per meter, defaults to 250>
-	update: <Javascript function, which can be used to animate the object>
+	// depth: <optional, in meters, defaults to 0.01m>,
+	// resolution: <optional, pixels per meter, defaults to 250>
+	// update: <Javascript function, which can be used to animate the object>
 }
 ```
 
@@ -127,12 +127,50 @@ showArtwork({
 
 Instead of displaying a P5.js script, you can display a static image, using the `image` field option. See the notes below on Staging Assets for an example. 
 
+### Dimensions
+
+The `width` and `height` fields define the size of the canvas in meters. 
+
+The `depth` field sets the depth of the canvas as a 3D object. Setting `width`, `height`, and `depth` to the same number will create a cube. 
+
+The `resolution` field defines the resolution of the canvas, in pixels per meter. E.g., if the resolution is 100, and the canvas is 2m x 3m, then the canvas will be 200 x 300 pixels. 
+
 ### Labels
 
 The options object can include a text string `label` to show the title and description of the artwork. This text will fade in when the visitor looks down toward the bottom of the artwork, and fade out again when the visitor looks back up. 
 
+### Animation
 
+If you want the canvas to animate in the 3D world, you can add an `update` field to the options object with a JavaScript function. The argument to the `update` function is the Three.js [Group](https://threejs.org/docs/?q=group#api/en/objects/Group) that contains the artwork. 
 
+For example, the code below creates a cube object textured by the P5.js script, and continuously rotates this object in the 3D world:
+
+```javascript
+let artwork = showArtwork({
+	// show artwork on a one-meter cube:
+	width: 1,
+	height: 1,
+	depth: 1,
+	// the artwork code goes here:
+	code: code1,
+	// the update routine will animate the artwork
+	update: function (artwork) {
+		artwork.rotation.y += 0.01;
+		artwork.rotation.x += 0.003;
+	},
+});
+artwork.position.set(3.5, 0, 0);
+```
+
+### Performance
+
+For VR it is very important to maintain high framerates to avoid latency that can cause nausea or cybersickness. 
+
+The WebXR_P5.js scene will only animate one script at once -- whichever one the visitor has most recently looked at. 
+
+However it is still important for the designer to ensure the P5.js script is efficient and able to run at high frame rates (90 FPS recommended for VR). 
+
+Reducing the `resolution` of the canvas may be one way to improve performance. 
 
 ### Placing the Artwork in the World
 
